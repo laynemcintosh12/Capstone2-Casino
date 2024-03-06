@@ -1,0 +1,25 @@
+.dropdown-menu {
+  background-color: #2d3236; /* Adjust the color as needed */
+}
+
+.dropdown-item {
+  color: #ffffff; /* Set text color to white */
+}
+
+.dropdown-item:hover {
+  color: white;
+  background-color: #495057; /* Set background color on hover */
+}
+
+
+.dropdown-item.active, 
+.dropdown-item:active {
+  background-color: #222528;
+  color: white;
+}
+
+
+.navbar-nav {
+  padding-right: 2rem!important;
+}
+
