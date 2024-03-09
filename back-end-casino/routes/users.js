@@ -44,7 +44,6 @@ router.get("/:username", async function (req, res, next) {
  */
 router.get('/balance/:username', async (req, res, next) => {
   try {
-    console.log("hitting the correct route")
     const user = await User.getBalance(req.params.username);
     return res.json({ user });
   } catch (error) {
@@ -58,7 +57,7 @@ router.get('/balance/:username', async (req, res, next) => {
  * Updates a users balance based off of a bet
  * 
  */
-router.post('/bet/:username', async (req, res, next) => {
+router.put('/bet/:username', async (req, res, next) => {
   try {
     const user = await User.updateBalance(req.params.username, req.body);
     return res.json({ user });

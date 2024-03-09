@@ -52,7 +52,8 @@ function App() {
 
   async function login(data) {
     let res = await CasinoApi.login(data);
-    let decoded = jwtDecode(res.token);
+    console.log(res);
+    let decoded = jwtDecode(res);
     setUser(decoded.username);
     localStorage.setItem("token", res);
   }

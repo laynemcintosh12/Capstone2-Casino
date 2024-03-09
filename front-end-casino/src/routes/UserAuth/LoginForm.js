@@ -53,9 +53,10 @@ function LoginForm({ login }) {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary">Login</button>
+            <button type="submit" className="btn btn-primary btn-block">Login</button>
+            <a className="mt-4 bg-light text-center" href="/signup">Don't have an account? Sign Up</a>
           </form>
-          <a className="text text-center" href="/signup">Don't have an account? Sign Up</a>
+          
         </div>
       </div>
     </div>

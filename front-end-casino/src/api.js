@@ -2,13 +2,7 @@ import axios from "axios";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:3001";
 
-/** API Class.
- *
- * Static class tying together methods used to get/send to to the API.
- * There shouldn't be any frontend-specific stuff here, and there shouldn't
- * be any API-aware stuff elsewhere in the frontend.
- *
- */
+
 
 class CasinoApi {
   // the token for interactive with the API will be stored here.
@@ -51,15 +45,21 @@ class CasinoApi {
   /** Get account balance */
 
   static async fetchBalance(username) {
-    const res = await this.request(`user/balance/${username}`);
-    return res.balance;
+    if (!username) {
+      return;
+    }
+    else {
+      const res = await this.request(`user/balance/${username}`);
+      return res.user.balance;
+    }
   }
 
 
   /** Place a bet on a game. */
 
   static async placeBet(username, amount) {
-    const res = await this.request(`user/bet/${username}`, { amount: -amount });
+    const res = await this.request(`user/bet/${username}`, { amount: -amount }, "put");
+    console.log(res);
     return res;
   }
 
@@ -72,7 +72,7 @@ class CasinoApi {
   /** Log a user in */
 
   static async login(data){
-    const res = await this.request('auth/token', data, "post");
+    const res = await this.request('auth/login', data, "post");
     this.token = res.token;
     return res.token
   }

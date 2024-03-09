@@ -1,37 +1,55 @@
 import React, { useState } from 'react';
-import Card from "./Card";
-import '../../styles/Blackjack.css'
-import GameStatusOverlay from './GameStatusOverlay'
+import Betting from './Betting';
+import Actions from './Actions';
+import Hands from './Hands';
+import GameOverlay from './GameOverlay';
 import useBlackjackGame from '../../hooks/useBlackjackGame';
-import CasinoApi from '../../api';
+import CasinoAPI from '../../api';
+import useBalance from '../../hooks/useBalance';
 import { jwtDecode } from 'jwt-decode';
 
-
-const BlackjackGame = () => {
+const Blackjack = () => {
     const [formData, setFormData] = useState({
         betAmount: 0,
-      });
+    });
 
-    const { 
-      playerHand,
-      splitHand, 
-      dealerHand, 
-      gameState, 
-      startNewGame, 
-      hit, 
-      stand, 
-      restartGame,
-      calculateHandValue,
-      split,
+    const { balance, updateBalance } = useBalance();
+
+
+    const {
+        playerHand,
+        splitHand,
+        dealerHand,
+        gameState,
+        startNewGame,
+        hit,
+        stand,
+        restartGame,
+        calculateHandValue,
+        split,
     } = useBlackjackGame();
 
-    const betting = (amt) => {
-        // get user
-        const token = localStorage.getItem('token');
-        const username = jwtDecode(token).username;
-        // place bet
-        CasinoApi.placeBet(username, amt);
+    const betting = async (amt) => {
+        try {
+            // Check if bet amount is valid
+            if (amt <= 0) {
+                throw new Error('Invalid bet amount');
+            }
 
+            // Check if bet amount exceeds available balance
+            if (amt > balance) {
+                throw new Error('Insufficient balance');
+            }
+
+            // Place bet
+            const username = localStorage.getItem("token");
+            const decoded = jwtDecode(username);
+            await CasinoAPI.placeBet(decoded.username, amt);
+
+            updateBalance();
+        } catch (error) {
+            console.error('Error placing bet:', error);
+        }
     }
 
     const handleStart = async (e) => {
@@ -41,108 +59,64 @@ const BlackjackGame = () => {
     }
 
     const handleChange = (e) => {
-        const { amount } = e.target;
+        const { value } = e.target;
         setFormData(data => ({
             ...data,
-            betAmount: amount
+            betAmount: value
         }));
     };
 
     return (
-      <div className="container-fluid mt-4">
-          <div className="text-center text-light mb-4 pt-4">
-              <h1>Blackjack</h1>
-          </div>
-
-        {gameState === 'start' && (
-          <div className="row">
-              <div className="col text-center mt-4">
-                <form className="form" onSubmit={handleStart}>
-                    <label className="text-light" htmlFor='bet-input'>Bet:</label>
-                        <input id='bet-input' className="bet-input" type="number" value={formData.betAmount} onChange={handleChange} />
-                    <button className="btn btn-dark btn-lg">Start Game</button>
-                </form>
-              </div>
-          </div>
-        )}
-
-        {gameState === 'playing' && (
-            <>
-            <div className="row mt-4">
-                <div className="col text-center mb-4">
-                    <div className="actions">
-                        {gameState === 'split' && <button className="btn btn-dark mr-2" onClick={split}>Split</button>}
-                        <button className="btn btn-dark mr-2" onClick={hit}>Hit</button>
-                        <button className="btn btn-dark" onClick={stand}>Stand</button>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div className="row">
-                 <div className="col">
-                    <div className="dealer-hand">
-                        <h2 className='text-center text-light'>Dealer Hand: <span id="dealer-hand-total">{calculateHandValue(dealerHand)}</span></h2>
-                        <div className="card-area">
-                            {dealerHand.map((cardData) => (
-                                <Card key={cardData.id} front={cardData.image} />
-                            ))}
-                        </div>
-                    </div>
-                 </div>
+        <div className="container-fluid mt-4">
+            <div className="text-center text-light mb-4 pt-4">
+                <h1>Blackjack</h1>
             </div>
 
-            <div className="row mt-3">
-                <div className="col">
-                    <div className="player-hand">
-                        <h2 className='text-center text-light'>Player Hand: <span id="player-hand-total">{calculateHandValue(playerHand)}</span></h2>
-                        <div className="card-area">
-                            {playerHand.map((cardData) => (
-                                <Card key={cardData.id} front={cardData.image} />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-                
-                {splitHand.length > 0 && (
-                    <div className="col">
-                        <div className="split-hand">
-                            <h2 className='text-center text-light'>Split Hand: <span id="split-hand-total">{calculateHandValue(splitHand)}</span></h2>
-                            <div className="card-area">
-                                {splitHand.map((cardData) => (
-                                    <Card key={cardData.id} front={cardData.image} />
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
-                
-            </div>
-            </>
-        )}
+            <Betting
+                betAmount={formData.betAmount}
+                handleChange={handleChange}
+                handleStart={handleStart}
+                balance={balance}
+                gameState={gameState}
+            />
 
-        <div className="row mt-4">
-          <div className="col text-center">
-            <div className="game-overlay">
-              {gameState !== 'playing' && gameState !== 'start' && (
-                <GameStatusOverlay
-                  gameState={gameState}
-                  restartGame={restartGame}
-                  total={{
-                    player: calculateHandValue(playerHand),
-                    dealer: calculateHandValue(dealerHand)
-                  }}
-                />
-              )}
-            </div>
-          </div>
+            {gameState === 'playing' && (
+                <>
+                    <Actions
+                        gameState={gameState}
+                        hit={hit}
+                        stand={stand}
+                        split={split}
+                    />
+                    <Hands
+                        hand={dealerHand}
+                        calculateHandValue={calculateHandValue}
+                        title="Dealer Hand"
+                    />
+                    <Hands
+                        hand={playerHand}
+                        calculateHandValue={calculateHandValue}
+                        title="Player Hand"
+                    />
+                    {splitHand && splitHand.length > 0 && (
+                        <Hands
+                            hand={splitHand}
+                            calculateHandValue={calculateHandValue}
+                            title="Split Hand"
+                        />
+                    )}
+                </>
+            )}
+
+            <GameOverlay
+                gameState={gameState}
+                restartGame={restartGame}
+                playerHand={playerHand}
+                dealerHand={dealerHand}
+                calculateHandValue={calculateHandValue}
+            />
         </div>
-      </div>
-
     );
 };
 
-export default BlackjackGame;
-
-
-
+export default Blackjack;
