@@ -51,6 +51,7 @@ function App() {
   async function logout() {
     setUser('');
     localStorage.removeItem("token");
+    localStorage.removeItem("balance");
     await CasinoApi.logout();
     return <Navigate to='/' />;
   }
@@ -95,7 +96,7 @@ function App() {
             <Route path="/profile" element={<Profile user={user} editUser={editUser} />} />
 
             <Route path="/games" element={<GameList games={games} />} />
-            <Route path="/Blackjack" element={<BlackjackGame />} />
+            <Route path="/Blackjack" element={<BlackjackGame setBalance={setBalance} />} />
             <Route path="/Poker" element={<Poker />} />
             <Route path="/Roulette" element={<Roulette />} />
 

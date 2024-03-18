@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import "../../styles/Card.css"
+import React, { useState, useEffect } from "react";
+import "../../styles/Card.css";
 
 const backOfCard = "https://deckofcardsapi.com/static/img/back.png";
 
-
 function Card({ cardData }) {
-  const [isFacingUp, setIsFacingUp] = useState(true);
+  // Determine initial state based on cardData
+  const [isFacingUp, setIsFacingUp] = useState(!cardData.isFaceDown);
 
-  // if(cardData.isFaceDown){
-  //   setIsFacingUp(false);
-  // }
-  
+  useEffect(() => {
+    setIsFacingUp(!cardData.isFaceDown);
+  }, [cardData.isFaceDown]); // Watch for changes in cardData.isFaceDown
+
   return (
     <img
       src={isFacingUp ? cardData.image : backOfCard}

@@ -63,4 +63,13 @@ Issues Still Needing Fixed:
 
 1. Need to Add in Trivia for when a user goes bankrupt
 
-2. stand button needs help
+2. Hit button is working, however it does not render the card
+---- I think the game prop in my parent BlackjackGame file needs to be rerendered on changes of the game, however, i cant let this create a new instance of the game
+
+3. Stand button needs some work
+
+4. Betting feature is running properly, except when doubleBet or TripleBet runs, the navbar balance and the current bet doesnt update the first time and lags one click behind
+
+5. Havent been able to work on end game component yet. 
+
+6. when stand is pressed, the card component must refresh to flip over

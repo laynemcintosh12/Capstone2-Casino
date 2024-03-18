@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { jwtDecode } from 'jwt-decode';
 
-const BlackjackStart = ({ game, setGameState }) => {
+const BlackjackStart = ({ game, setGameState, setBalance }) => {
     const [currentBet, setCurrentBet] = useState(game.currentBet);
 
     useEffect(() => {
         // Update currentBet state whenever game.currentBet changes
         setCurrentBet(game.currentBet);
-    }, [game.currentBet]); 
+        // Update balance state whenever game.balance changes
+        setBalance(game.balance);
+    }, [game.currentBet, game.balance, setBalance]); 
 
     const handleIncreaseBet = () => {
         const token = localStorage.getItem("token");
@@ -15,6 +17,8 @@ const BlackjackStart = ({ game, setGameState }) => {
         game.increaseBet(5, username).then(() => {
             // After increasing bet, update currentBet state
             setCurrentBet(game.currentBet);
+            // After increasing bet, update balance state
+            setBalance(game.balance);
         });
     }
 
@@ -22,6 +26,9 @@ const BlackjackStart = ({ game, setGameState }) => {
         await game.startGame();
         // After starting game, update gameState state
         setGameState(game.gameState);
+        // After starting game, update balance state
+        await game.getBalance();
+        setBalance(game.balance);
     }
 
     return (

@@ -4,7 +4,7 @@ import BlackjackStart from './BlackjackStart';
 import BlackjackPlaying from './BlackjackPlaying';
 import BlackjackEnd from './BlackjackEnd';
 
-const BlackjackGame = () => {
+const BlackjackGame = ({ setBalance }) => {
     const [game, setGame] = useState(null);
     const [gameState, setGameState] = useState(null);
 
@@ -12,6 +12,7 @@ const BlackjackGame = () => {
         const newGame = new BlackjackClass();
         setGame(newGame);
         setGameState(newGame.gameState);
+        newGame.getBalance();
     }, []);
     
 
@@ -26,17 +27,17 @@ const BlackjackGame = () => {
             <div className="text-center">
                 {gameState === 'start' && (
                     <div className="text-center">
-                        <BlackjackStart game={game} setGameState={setGameState} />
+                        <BlackjackStart game={game} setGameState={setGameState} setBalance={setBalance} />
                     </div>
                 )}
                 {['playing', 'drawing'].includes(gameState) && (
                     <div className="text-center">
-                        <BlackjackPlaying game={game} />
+                        <BlackjackPlaying game={game} setGameState={setGameState} setBalance={setBalance} />
                     </div>
                 )}
-                {gameState === 'end' && (
+                {!['start', 'playing', 'drawing'].includes(gameState) && (
                     <div className="text-center">
-                        <BlackjackEnd game={game} />
+                        <BlackjackEnd game={game} setGameState={setGameState} />
                     </div>
                 )}
             </div>

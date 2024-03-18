@@ -14,15 +14,17 @@ class BlackjackClass {
         this.balance = 0;
     }
 
+    getBalance() {
+        this.balance = localStorage.getItem("balance");
+        return this.balance;
+    }
+
     async startGame(){
         // set gameState to drawing
         this.gameState = "drawing";
         // get deck id
         let res = await Shuffle(6);
         this.deckID = res.data.deck_id;
-        // get balance
-        this.balance = localStorage.getItem("balance");
-        // get current bet
     }
 
     async dealCard(){
@@ -59,66 +61,58 @@ class BlackjackClass {
     
     
 
-    calculateHandValue(hand){
+    calculateHandValue(hand) {
         // get total value of cards based off of values
         let sum = 0;
         let hasAce = false;
-
+    
         for (const card of hand) {
-            if (card.value === 'ACE') {
-            hasAce = true;
-            }
-            if (['JACK', 'QUEEN', 'KING'].includes(card.value)) {
-            sum += 10;
-            } else if (card.value !== 'ACE') {
-            sum += parseInt(card.value);
+            // Skip facedown cards
+            if (!card.isFaceDown) {
+                if (card.value === 'ACE') {
+                    hasAce = true;
+                }
+                if (['JACK', 'QUEEN', 'KING'].includes(card.value)) {
+                    sum += 10;
+                } else if (card.value !== 'ACE') {
+                    sum += parseInt(card.value);
+                }
             }
         }
     
         if (hasAce) {
             if (sum + 11 <= 21) {
-            sum += 11;
+                sum += 11;
             } else {
-            sum += 1;
+                sum += 1;
             }
         }
-
+    
         return sum;
     }
-
+    
     async increaseBet(bet, username){
         // increase bet by 10
         this.currentBet += bet;
         await CasinoApi.placeBet(username, bet);
-    
+        this.balance = this.balance - bet;
+        localStorage.setItem("balance", this.balance);
     }
 
     endGame(){
         let msg;
         if (this.gameState === "playerBust"){
             msg = `You busted with a total of ${this.playerHandTotal}! You lose your bet.`;
-            this.balance -= this.currentBet;
-            localStorage.setItem("balance", this.balance);
         } else if (this.gameState === "dealerBust"){
             msg = `Dealer busted with a total of ${this.dealerHandTotal}! You win your bet.`;
-            this.balance += this.currentBet;
-            localStorage.setItem("balance", this.balance);
         } else if (this.gameState === "draw"){
             msg = "It's a draw! You lose your bet.";
-            this.balance -= this.currentBet;
-            localStorage.setItem("balance", this.balance);
         } else if (this.gameState === "playerWin"){
             msg = `You won with a total of ${this.playerHandTotal}! You win your bet.`;
-            this.balance += this.currentBet;
-            localStorage.setItem("balance", this.balance);
         } else if (this.gameState === "dealerWin"){
             msg = `Dealer wins with a total of ${this.dealerHandTotal}! You lose your bet.`;
-            this.balance -= this.currentBet;
-            localStorage.setItem("balance", this.balance);
         } else {
             msg = "Something went wrong. You lose your bet.";
-            this.balance -= this.currentBet;
-            localStorage.setItem("balance", this.balance);
         }
 
         return msg;
@@ -135,23 +129,25 @@ class BlackjackClass {
     }
 
     async stand(){
-        // Add a card to dealer hand if dealer total less than 17
-        // Check if bust
-        // If no bust, and dealer hand total still less than 17, add another card to dealer hand
-        // Check if bust
-        // If no bust, and dealer hand total still less than 17, add another card to dealer hand
-        // Run checkWin
+        // flip dealers second card
+        this.dealerHand[1].isFaceDown = false;
+        // calculate new hand value
+        this.dealerHandTotal = this.calculateHandValue(this.dealerHand);
+        // check if dealer bust
+        this.checkBust();
 
-        // While dealer hand total is less than 17, keep adding cards
+        // if hand value is less than 17, continue drawing cards until hand value is greater than 17 checking for bust inbetween
         while (this.dealerHandTotal < 17) {
-            this.dealCard();
-            this.dealerHand.push(this.dealCard());
+            let dealerCard = await this.dealCard();
+            this.dealerHand.push(dealerCard);
             this.dealerHandTotal = this.calculateHandValue(this.dealerHand);
+            console.log("dealer hand total: ", this.dealerHandTotal);
+            console.log("dealer hand: ", this.dealerHand);
             this.checkBust();
         }
-
         // Once dealer hand is finalized, check the result
         this.checkWin();
+        console.log(this.gameState)
     }
 
     checkWin(){
@@ -197,14 +193,21 @@ class BlackjackClass {
         this.currentBet = 0;
     }
 
-    async doubleBet(){
+    async doubleBet(username){
+        await CasinoApi.placeBet(username, this.currentBet);
         this.currentBet *= 2;
-        await CasinoApi.placeBet(this.currentBet);
+        this.balance -= this.currentBet;
+        localStorage.setItem("balance", this.balance);
     }
 
-    async tripleBet(){
-        this.currentBet *= 3;
-        await CasinoApi.placeBet(this.currentBet);
+    async tripleBet(username){
+        let oldBet = this.currentBet;
+        let newBet = oldBet * 3;
+        let bet = newBet - oldBet;
+        await CasinoApi.placeBet(username, bet);
+        this.currentBet = newBet;
+        this.balance -= this.currentBet;
+        localStorage.setItem("balance", this.balance);
     }   
 }
 
