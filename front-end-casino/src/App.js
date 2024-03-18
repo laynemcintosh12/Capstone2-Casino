@@ -10,7 +10,7 @@ import SignUpForm from "./routes/UserAuth/SignUpForm";
 import LoginForm from "./routes/UserAuth/LoginForm";
 import Profile from "./routes/UserAuth/Profile";
 import CasinoApi from "./api";
-import Blackjack from "./routes/GameRoutes/Blackjack";
+import BlackjackGame from "./routes/GameRoutes/BlackjackMaster/BlackjackGame";
 import Poker from "./routes/GameRoutes/Poker";
 import Roulette from "./routes/GameRoutes/Roulette";
 
@@ -19,6 +19,7 @@ import Roulette from "./routes/GameRoutes/Roulette";
 function App() {
   const [games, setGames] = useState([]);
   const [user, setUser] = useState('');
+  const [balance, setBalance] = useState('');
 
   useEffect(() => {
     async function getGames() {
@@ -31,14 +32,18 @@ function App() {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    if (storedToken) {
+    const storedBalance = localStorage.getItem("balance");
+    if (storedToken && storedBalance) {
       try {
         const decoded = jwtDecode(storedToken);
         setUser(decoded.username);
+        setBalance(storedBalance);
       } catch (err) {
         console.error("Error decoding token:", err);
         localStorage.removeItem("token");
         setUser('');
+        localStorage.removeItem("balance");
+        setBalance('');
       }
     }
   }, [setUser]);
@@ -52,10 +57,16 @@ function App() {
 
   async function login(data) {
     let res = await CasinoApi.login(data);
-    console.log(res);
     let decoded = jwtDecode(res);
     setUser(decoded.username);
     localStorage.setItem("token", res);
+    getBalance(decoded.username);
+  }
+
+  async function getBalance(username) {
+      const res = await CasinoApi.fetchBalance(username);
+      setBalance(res);
+      localStorage.setItem("balance", res);
   }
 
   async function signUp(data) {
@@ -77,14 +88,14 @@ function App() {
   return (
     <div>
       <BrowserRouter>
-        <NavBar logout={logout} user={user} setUser={setUser} />
+        <NavBar logout={logout} user={user} setUser={setUser} balance={balance} setBalance={setBalance} />
           <Routes>
             <Route path="/signup" element={<SignUpForm signUp={signUp} />} />
             <Route path="/login" element={<LoginForm login={login} />} />
             <Route path="/profile" element={<Profile user={user} editUser={editUser} />} />
 
             <Route path="/games" element={<GameList games={games} />} />
-            <Route path="/Blackjack" element={<Blackjack />} />
+            <Route path="/Blackjack" element={<BlackjackGame />} />
             <Route path="/Poker" element={<Poker />} />
             <Route path="/Roulette" element={<Roulette />} />
 

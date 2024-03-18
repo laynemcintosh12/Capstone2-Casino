@@ -9,7 +9,7 @@ const Hand = ({ hand, calculateHandValue, title }) => {
                     <h2 className='text-center text-light'>{title}: <span id="player-hand-total">{calculateHandValue(hand)}</span></h2>
                     <div className="card-area">
                         {hand.map((cardData) => (
-                            <Card key={cardData.id} front={cardData.image} />
+                            <Card key={cardData.code} front={cardData.image} />
                         ))}
                     </div>
                 </div>

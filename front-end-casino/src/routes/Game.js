@@ -39,6 +39,7 @@ function Game({ game, background, classProp, isAuthenticated }) {
       className={`game-${classProp}`}
       style={{
         backgroundImage: backgroundImage,
+        height: "94.4vh",
         opacity: hovered ? 0.7 : 1, // Set opacity when hovered
       }}
       onMouseEnter={() => setHovered(true)}

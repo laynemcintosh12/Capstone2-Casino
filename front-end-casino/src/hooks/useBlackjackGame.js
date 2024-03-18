@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Shuffle, drawCard } from '../DeckOfCardsAPI';
 
-
 const useBlackjackGame = () => {
   const [deckId, setDeckId] = useState(null);
   const [playerHand, setPlayerHand] = useState([]);
   const [splitHand, setSplitHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
   const [gameState, setGameState] = useState('start');
+
+  
   
   const startNewGame = async () => {
     try {
@@ -60,6 +61,10 @@ const useBlackjackGame = () => {
       const newPlayerCard = await drawCard(deckId);
       const val = newPlayerCard.data.cards[0];
       setPlayerHand([...playerHand, val]);
+
+      // Add a delay of 1 second after adding the card to the hand
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       if (isBust([...playerHand, val])) {
         setGameState('playerBust');
       }
@@ -72,37 +77,49 @@ const useBlackjackGame = () => {
     if (gameState === 'playing') {
       try {
         let dealerValue = calculateHandValue(dealerHand);
-        while (dealerValue < 17) {
-          
-          const newDealerCard = await drawCard(deckId);
-          const val = newDealerCard.data.cards[0];
-            setDealerHand([...dealerHand, val]);
-            if (isBust([...dealerHand, val])) {
-              setGameState('dealerBust');
-              return;
-            }
-            
-          dealerValue = setTimeout(() => {
-            console.log("timeout")
-            return calculateHandValue([...dealerHand, val]);
-          }, 2000);
 
+        // if dealerValue is less than 17, draw a card and add it to the dealers hand
+        if(dealerValue < 17) {
+          const newDealerCard = await drawCard(deckId);
+          setDealerHand([...dealerHand, newDealerCard.data.cards[0]]);
+
+          // Add a delay of 1 second after adding the card to the hand
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          dealerValue = calculateHandValue([...dealerHand, newDealerCard.data.cards[0]]);
+
+          // If the dealer busts, end the game
+          if (isBust([...dealerHand, newDealerCard.data.cards[0]])) {
+            setGameState('dealerBust');
+            return;
+          }
           
-        }
-        const playerValue = calculateHandValue(playerHand);
-        dealerValue = calculateHandValue(dealerHand);
-        if (playerValue > dealerValue) {
-          setGameState('playerWin');
-        } else if (dealerValue > playerValue) {
-          setGameState('dealerWin');
+        } else if (dealerValue > 17) {
+          // Compare player's and dealer's hands to determine the winner
+          const playerValue = calculateHandValue(playerHand);
+          if (playerValue > dealerValue) {
+            setGameState('playerWin');
+          } else if (dealerValue > playerValue) {
+            setGameState('dealerWin');
+          } else {
+            setGameState('draw');
+          }
         } else {
-          setGameState('draw');
+          const playerValue = calculateHandValue(playerHand);
+          if (playerValue > dealerValue) {
+            setGameState('playerWin');
+          } else if (dealerValue > playerValue) {
+            setGameState('dealerWin');
+          } else {
+            setGameState('draw');
+          }
         }
+  
       } catch (error) {
         console.error('Error drawing card for dealer:', error);
       }
     }
   };
+  
 
   const calculateHandValue = hand => {
     let sum = 0;
@@ -139,7 +156,7 @@ const useBlackjackGame = () => {
     setDeckId(null);
     setPlayerHand([]);
     setDealerHand([]);
-    startNewGame();
+    setGameState('start');
   };
 
   return { 

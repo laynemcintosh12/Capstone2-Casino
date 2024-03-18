@@ -1,7 +1,7 @@
 import React from 'react';
 import GameStatusOverlay from './GameStatusOverlay';
 
-const GameOverlay = ({ gameState, restartGame, playerHand, dealerHand, calculateHandValue }) => {
+const GameOverlay = ({ gameState, restartGame, playerHand, dealerHand, calculateHandValue, currentBet, setBalance }) => {
     return (
         <div className="row mt-4">
             <div className="col text-center">
@@ -14,6 +14,8 @@ const GameOverlay = ({ gameState, restartGame, playerHand, dealerHand, calculate
                                 player: calculateHandValue(playerHand),
                                 dealer: calculateHandValue(dealerHand)
                             }}
+                            currentBet={currentBet}
+                            setBalance={setBalance}
                         />
                     )}
                 </div>

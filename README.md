@@ -53,5 +53,14 @@ Viewing game history and statistics.
 Account management and settings.
 Trivia Game in order to gain more money
 
- f. What features make your site more than a CRUD app? What are your stretch goals? 
+f. What features make your site more than a CRUD app? What are your stretch goals? 
 Real-time gameplay with interactive interfaces make this more than a CRUD app. I would like to implement live multiplayer functionality, leaderboards, and an in-app currency system
+
+
+
+
+Issues Still Needing Fixed:
+
+1. Need to Add in Trivia for when a user goes bankrupt
+
+2. stand button needs help

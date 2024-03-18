@@ -44,14 +44,9 @@ class CasinoApi {
 
   /** Get account balance */
 
-  static async fetchBalance(username) {
-    if (!username) {
-      return;
-    }
-    else {
-      const res = await this.request(`user/balance/${username}`);
-      return res.user.balance;
-    }
+  static async fetchBalance(username) {  
+    const res = await this.request(`user/balance/${username}`);
+    return res.user.balance;
   }
 
 
@@ -59,7 +54,13 @@ class CasinoApi {
 
   static async placeBet(username, amount) {
     const res = await this.request(`user/bet/${username}`, { amount: -amount }, "put");
-    console.log(res);
+    return res;
+  }
+
+  /** Gives winnings to a user */
+
+  static async giveWinnings(username, amount) { 
+    const res = await this.request(`user/bet/${username}`, { amount: amount }, "put");
     return res;
   }
 
@@ -88,7 +89,6 @@ class CasinoApi {
   /** Edit a user */
 
   static async editUser(data){
-    // sends data to /users/:username
     let email = data.email;
     let password = data.password;
     let update = { email, password };

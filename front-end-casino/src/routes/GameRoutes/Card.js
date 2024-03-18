@@ -1,18 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import "../../styles/Card.css"
-import useFlip from "../../hooks/useFlip";
 
 const backOfCard = "https://deckofcardsapi.com/static/img/back.png";
 
 
-function Card({ front, back = backOfCard }) {
-  const [isFacingUp, flipCard] = useFlip(true);
+function Card({ cardData }) {
+  const [isFacingUp, setIsFacingUp] = useState(true);
+
+  // if(cardData.isFaceDown){
+  //   setIsFacingUp(false);
+  // }
   
   return (
     <img
-      src={isFacingUp ? front : back}
+      src={isFacingUp ? cardData.image : backOfCard}
       alt="playing card"
-      onClick={flipCard}
       className="PlayingCard-Card"
     />
   );
