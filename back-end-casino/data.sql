@@ -112,25 +112,3 @@ CREATE TABLE roulette_actions (
 );
 
 
-
--- TRIVIA ------------------------------------------------------------------------------------------------------------------
-
-CREATE TABLE trivia_questions (
-  question_id SERIAL PRIMARY KEY,
-  question_text TEXT NOT NULL,
-  correct_answer TEXT NOT NULL,
-  category VARCHAR(255), -- Optional: to categorize questions
-  difficulty VARCHAR(50) -- Easy, Medium, Hard, etc.
-);
-
-CREATE TABLE user_trivia_attempts (
-  attempt_id SERIAL PRIMARY KEY,
-  user_id INT REFERENCES users(user_id),
-  question_id INT REFERENCES trivia_questions(question_id),
-  user_answer TEXT,
-  is_correct BOOLEAN,
-  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-
-

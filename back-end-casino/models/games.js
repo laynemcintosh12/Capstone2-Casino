@@ -18,12 +18,13 @@ class Game {
               description
        FROM games`
     );
-
+  
     const games = gamesRes.rows;
-    if (!games) throw new NotFoundError("No games found");
-
+    if (games.length === 0) throw new NotFoundError("No games found");
+  
     return games;
   }
+  
 
   /** Get a single game from the database
    * 
@@ -52,33 +53,6 @@ class Game {
   }
 
 
-  /** Update a single game from the database
-   * 
-   * Returns { game_id, game_type, game_name, description }
-   * 
-   * Throws NotFoundError if game not found.
-   */
-
-  static async update(id, gameData) {
-    const result = await db.query(
-      `UPDATE games
-       SET game_type = $1,
-           game_name = $2,
-           description = $3
-       WHERE game_id = $4
-       RETURNING game_id AS "gameId",
-               game_type AS "gameType",
-               game_name AS "gameName",
-               description`,
-      [gameData.gameType, gameData.gameName, gameData.description, id]
-    );
-
-    const game = result.rows[0];
-
-    if (!game) throw new NotFoundError(`No game found with id ${id}`);
-
-    return game;
-  }
 
   
 }

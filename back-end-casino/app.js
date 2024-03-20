@@ -7,7 +7,6 @@ const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 const gamesRoutes = require("./routes/games");
 const userRoutes = require("./routes/users");
-const triviaRoutes = require("./routes/trivia");
 
 const app = express();
 
@@ -23,8 +22,6 @@ app.use(authenticateJWT);
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
 app.use("/user", userRoutes);
-app.use("/trivia", triviaRoutes);
-
 
 /** Handle 404 errors */
 app.use(function (req, res, next) {

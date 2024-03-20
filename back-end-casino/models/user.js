@@ -1,14 +1,11 @@
 const db = require("../db");
 const bcrypt = require("bcrypt");
-const { sqlForPartialUpdate } = require("../helpers/sql");
 const {
   NotFoundError,
   BadRequestError,
   UnauthorizedError,
 } = require("../expressError");
-const { SECRET_KEY } = require("../config");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const jwt = require("jsonwebtoken");
 
 
 class User {
@@ -182,52 +179,6 @@ class User {
 
     return user;
   }
-
-
-  /** Update user data with `data`.
-   *
-   * This is a "partial update" --- it's fine if data doesn't contain
-   * all the fields; this only changes provided ones.
-   *
-   * Data can include:
-   *   { password, email, balance, isAdmin }
-   *
-   * Returns { username, email, balance, isAdmin }
-   *
-   * Throws NotFoundError if not found.
-   *
-   * WARNING: this function can set a new password or make a user an admin.
-   * Callers of this function must be certain they have validated inputs to this
-   * or a serious security risks are opened.
-   */
-  static async update(username, data) {
-    if (data.password) {
-      data.password = await bcrypt.hash(data.password, BCRYPT_WORK_FACTOR);
-    }
-
-    const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          isAdmin: "isAdmin",
-        });
-    const usernameVarIdx = "$" + (values.length + 1);
-
-    const querySql = `UPDATE users 
-                      SET ${setCols} 
-                      WHERE username = ${usernameVarIdx} 
-                      RETURNING username,
-                                email,
-                                balance,
-                                isAdmin`;
-    const result = await db.query(querySql, [...values, username]);
-    const user = result.rows[0];
-
-    if (!user) throw new NotFoundError(`No user: ${username}`);
-
-    delete user.password;
-    return user;
-  }
-
 
   /** Delete given user from database; returns undefined. */
   static async delete(username) {

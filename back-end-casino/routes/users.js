@@ -67,30 +67,6 @@ router.put('/bet/:username', async (req, res, next) => {
 });
 
 
-/** Put Route
- * 
- * Updates a user by username
- * 
- */
-
-router.put("/:username", async function (req, res, next) {
-  const result = jsonschema.validate(req.body, userSchema);
-
-  if (!result.valid) {
-    // pass validation errors to the error handler
-    let listOfErrors = result.errors.map((error) => error.stack);
-    let error = new ExpressError(listOfErrors, 400);
-    return next(error);
-  }
-  try {
-    const user = await User.update(req.params.username, req.body);
-    return res.json({ user });
-  } catch (err) {
-    return next(err);
-  }
-});
-
-
 /** Delete Route
  * 
  * Deletes a user by ID

@@ -40,31 +40,6 @@ router.get("/:id", async function (req, res, next) {
 
 
 
-/** PUT route to update a game based off of an id
- * 
- * returns { game_id, game_type, game_name, description }
- * 
- */
-
-router.put("/:id", async function (req, res, next) {
-  const result = jsonschema.validate(req.body, gameSchema);
-
-  if (!result.valid) {
-    // pass validation errors to the error handler
-    let listOfErrors = result.errors.map((error) => error.stack);
-    let error = new ExpressError(listOfErrors, 400);
-    return next(error);
-  }
-  try {
-    const game = await Game.update(req.params.isbn, req.body);
-    return res.json({ game });
-  } catch (err) {
-    return next(err);
-  }
-});
-
-
-
 
 
 
