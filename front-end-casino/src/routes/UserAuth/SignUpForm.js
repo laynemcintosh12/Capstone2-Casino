@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import '../../styles/SignUpForm.css'
+import { useNavigate } from "react-router-dom";
 
 function SignUpForm({ signUp }) {
   const navigate = useNavigate();
@@ -18,28 +17,28 @@ function SignUpForm({ signUp }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     signUp(formData);
-    navigate('/');
+    navigate("/");
   };
 
   return (
-    <div className="container mt-5">
-      <h1 className="text-center mr-3">Sign Up</h1>
-      <form onSubmit={handleSubmit}>
+    <div className="container bg-dark pt-3 rounded mt-5">
+      <h1 className="text-center text-light">Sign Up</h1>
+      <form onSubmit={handleSubmit} className="rounded p-4 bg-dark">
         <div className="mb-3">
-            <label htmlFor="email">Email:</label>
-            <input
-                type="email"
-                className="form-control"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-            />
+          <label htmlFor="email" className="text-light">Email:</label>
+          <input
+            type="email"
+            className="form-control"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div className="row">
           <div className="col-md-6 mb-3">
-            <label htmlFor="username">Username:</label>
+            <label htmlFor="username" className="text-light">Username:</label>
             <input
               type="text"
               className="form-control"
@@ -51,7 +50,7 @@ function SignUpForm({ signUp }) {
             />
           </div>
           <div className="col-md-6 mb-3">
-            <label htmlFor="password">Password:</label>
+            <label htmlFor="password" className="text-light">Password:</label>
             <input
               type="password"
               className="form-control"
@@ -63,7 +62,7 @@ function SignUpForm({ signUp }) {
             />
           </div>
         </div>
-        <button type="submit" className="btn btn-primary">Sign Up</button>
+        <button type="submit" className="btn btn-primary btn-block mt-3">Sign Up</button>
       </form>
     </div>
   );

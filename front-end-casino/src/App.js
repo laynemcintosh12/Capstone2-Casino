@@ -5,7 +5,6 @@ import { jwtDecode } from "jwt-decode";
 import "./styles/app.css";
 import NavBar from "./NavBar";
 import Home from "./routes/Home";
-import GameList from "./routes/GameList";
 import SignUpForm from "./routes/UserAuth/SignUpForm";
 import LoginForm from "./routes/UserAuth/LoginForm";
 import Profile from "./routes/UserAuth/Profile";
@@ -13,6 +12,7 @@ import CasinoApi from "./api";
 import BlackjackGame from "./routes/GameRoutes/BlackjackMaster/BlackjackGame";
 import Poker from "./routes/GameRoutes/Poker";
 import Roulette from "./routes/GameRoutes/Roulette";
+import Trivia from "./routes/Trivia/Trivia";
 
 
 
@@ -75,15 +75,15 @@ function App() {
     login(res);
   }
 
-  async function editUser(data) {
-    let res = await CasinoApi.editUser(data);
-    setUser(res.username);
-  }
-
   // function to check if token is present or user logged in
   const isAuthenticated = () => {
     let token = localStorage.getItem("token");
     return !!token;
+  }
+
+  // function to route to not found page
+  const goLogin = () => {
+    return <Navigate to="/login" />
   }
 
   return (
@@ -93,14 +93,14 @@ function App() {
           <Routes>
             <Route path="/signup" element={<SignUpForm signUp={signUp} />} />
             <Route path="/login" element={<LoginForm login={login} />} />
-            <Route path="/profile" element={<Profile user={user} editUser={editUser} />} />
+            <Route path="/profile" element={isAuthenticated() ? <Profile user={user} /> : goLogin()} />
 
-            <Route path="/games" element={<GameList games={games} />} />
-            <Route path="/Blackjack" element={<BlackjackGame setBalance={setBalance} />} />
-            <Route path="/Poker" element={<Poker />} />
-            <Route path="/Roulette" element={<Roulette />} />
+            <Route path="/Blackjack" element={isAuthenticated() ? <BlackjackGame setBalance={setBalance} /> : goLogin()} />
+            <Route path="/Poker" element={isAuthenticated() ? <Poker /> : goLogin()} />
+            <Route path="/Roulette" element={isAuthenticated() ? <Roulette /> : goLogin()} />
+            <Route path="/trivia" element={isAuthenticated() ? <Trivia setBalance={setBalance} /> : goLogin()} />
 
-            <Route path="/" element={<Home games={games} isAuthenticated={isAuthenticated} />} />
+            <Route path="/" element={<Home games={games} />} />
             <Route path="*" element={<h1>404: Page Not Found</h1>} />
           </Routes>
       </BrowserRouter>

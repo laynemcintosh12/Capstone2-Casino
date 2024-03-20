@@ -86,25 +86,14 @@ class CasinoApi {
     return res.token
   }
 
-  /** Edit a user */
-
-  static async editUser(data){
-    let email = data.email;
-    let password = data.password;
-    let update = { email, password };
-    const res = await this.request(`users/${data.username}`, update, "patch");
-    return res.user;
-  }
-
+  
   /** Get a user by username */
 
   static async getUser(username){
-    const res = await this.request(`users/${username}`);
-    console.log("GetUser, JOBLYAPI", res);
-    return res.user;
+    const res = await this.request(`user/${username}`);
+    return res;
   }
 
- 
 }
 
 

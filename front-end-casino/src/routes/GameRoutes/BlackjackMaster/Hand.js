@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Card from '../Card';
 
-const Hand = ({ hand, total, name }) => {
+const Hand = memo(({ hand, total, name }) => {
   return (
     <div className="container-fluid text-white p-3 mt-2 rounded d-flex flex-column align-items-center">
       <div className="row">
@@ -22,8 +22,6 @@ const Hand = ({ hand, total, name }) => {
       </div>
     </div>
   );
-};
+});
 
 export default Hand;
-
-

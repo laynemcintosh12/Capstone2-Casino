@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../styles/game.css";
 import { useNavigate } from "react-router-dom";
 
-function Game({ game, background, classProp, isAuthenticated }) {
+function Game({ game, background, classProp }) {
   const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
 
@@ -24,14 +24,7 @@ function Game({ game, background, classProp, isAuthenticated }) {
   const backgroundImage = getBackgroundImage(background);
 
   function handleClick() {
-    // if user authenticated, then redirect to the route for the game clicked on
-    if (isAuthenticated) {
       navigate(`/${game.gameName}`);
-    } else {
-      // if user not authenticated, then redirect to the login page
-      alert("You must be logged in to play this game!");
-      navigate("/login");
-    }
   }
 
   return (
@@ -40,11 +33,11 @@ function Game({ game, background, classProp, isAuthenticated }) {
       style={{
         backgroundImage: backgroundImage,
         height: "94.4vh",
-        opacity: hovered ? 0.7 : 1, // Set opacity when hovered
+        opacity: hovered ? 0.7 : 1, 
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={handleClick} // Attach onClick event to the div
+      onClick={handleClick} 
     >
       {hovered && (
         <div className={`game-name-${classProp}`}>

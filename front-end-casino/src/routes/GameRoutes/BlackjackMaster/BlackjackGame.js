@@ -14,7 +14,6 @@ const BlackjackGame = ({ setBalance }) => {
         setGameState(newGame.gameState);
         newGame.getBalance();
     }, []);
-    
 
     if (!game) {
         // Render loading state or return null
@@ -32,12 +31,16 @@ const BlackjackGame = ({ setBalance }) => {
                 )}
                 {['playing', 'drawing'].includes(gameState) && (
                     <div className="text-center">
-                        <BlackjackPlaying game={game} setGameState={setGameState} setBalance={setBalance} />
+                        <BlackjackPlaying 
+                            game={game} 
+                            setGameState={setGameState} 
+                            setBalance={setBalance} 
+                        />
                     </div>
                 )}
                 {!['start', 'playing', 'drawing'].includes(gameState) && (
                     <div className="text-center">
-                        <BlackjackEnd game={game} setGameState={setGameState} />
+                        <BlackjackEnd game={game} setGameState={setGameState} setBalance={setBalance} />
                     </div>
                 )}
             </div>

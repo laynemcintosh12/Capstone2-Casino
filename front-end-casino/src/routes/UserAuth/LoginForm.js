@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../../styles/LoginForm.css'
 
 function LoginForm({ login }) {
   const navigate = useNavigate();
@@ -11,7 +10,7 @@ function LoginForm({ login }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(data => ({
+    setFormData((data) => ({
       ...data,
       [name]: value
     }));
@@ -20,17 +19,17 @@ function LoginForm({ login }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     login(formData);
-    navigate('/');
+    navigate("/");
   };
 
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
-        <div className="col-md-6">
-          <h2 className="text-center">Login</h2>
+        <div className="col-md-6 bg-dark rounded p-4">
+          <h1 className="text-center text-light mb-4">Login</h1>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="username" className="form-label">Username</label>
+              <label htmlFor="username" className="form-label text-light text-center">Username</label>
               <input
                 type="text"
                 className="form-control"
@@ -42,7 +41,7 @@ function LoginForm({ login }) {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="password" className="form-label">Password</label>
+              <label htmlFor="password" className="form-label text-light text-center">Password</label>
               <input
                 type="password"
                 className="form-control"
@@ -54,9 +53,10 @@ function LoginForm({ login }) {
               />
             </div>
             <button type="submit" className="btn btn-primary btn-block">Login</button>
-            <a className="mt-4 bg-light text-center" href="/signup">Don't have an account? Sign Up</a>
+            <a className="text-light d-block mt-3 text-center" href="/signup">
+              Don't have an account? Sign Up
+            </a>
           </form>
-          
         </div>
       </div>
     </div>

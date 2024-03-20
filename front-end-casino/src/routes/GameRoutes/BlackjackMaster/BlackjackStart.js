@@ -33,7 +33,7 @@ const BlackjackStart = ({ game, setGameState, setBalance }) => {
 
     return (
         <div className="d-flex justify-content-center"> 
-            <div className="text-center bg-dark rounded p-4 mt-5" style={{ width: '50%' }}>
+            <div className="text-center bg-dark rounded p-4 mt-3" style={{ width: '50%' }}>
                 <h6 className="text-white mb-4">Click the button to increase your starting bet by 5, each time you click it will increase!</h6>
                 <button className="btn btn-primary btn-lg rounded-circle mb-4" style={{ width: '150px', height: '150px', fontSize: "xx-large" }} onClick={handleIncreaseBet}>{currentBet}</button>
                 <button className="btn btn-success btn-block" onClick={handleStart}>Start</button>

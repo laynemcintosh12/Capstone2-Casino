@@ -1,32 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Hand from './Hand';
 import Actions from './Actions';
 
 const BlackjackPlaying = ({ game, setGameState, setBalance }) => {
-    const [cardsDealt, setCardsDealt] = useState(false);
+  const [playerHand, setPlayerHand] = useState([]);
+  const [dealerHand, setDealerHand] = useState([]);
 
-    useEffect(() => {
-        const deal = async () => {
-            await game.dealCards();
-            setCardsDealt(true);
-            setGameState(game.gameState);
-        };
-        deal();
-    }, [game.playerHand, game.dealerHand, game, setGameState]); 
+  const updatePlayerHand = useCallback(() => {
+    setPlayerHand([...game.playerHand]);
+  }, [game.playerHand]);
 
-    return (
-        <div>
-            <div className="actions-container">
-                <Actions game={game} setBalance={setBalance} />
-            </div>
-            {cardsDealt && ( 
-                <div className="hand-container">
-                    <Hand hand={game.playerHand} total={game.playerHandTotal} name="Player Hand" />
-                    <Hand hand={game.dealerHand} total={game.dealerHandTotal} name="Dealer Hand" />
-                </div>
-            )}
-        </div>
-    )
-}
+  const updateDealerHand = useCallback(() => {
+    setDealerHand([...game.dealerHand]);
+  }, [game.dealerHand]);
+
+  useEffect(() => {
+    const deal = async () => {
+      await game.dealCards();
+      updatePlayerHand();
+      updateDealerHand();
+      setGameState(game.gameState);
+    };
+    deal();
+  }, [game, setGameState, updatePlayerHand, updateDealerHand]);
+
+  useEffect(() => {
+    updatePlayerHand();
+    updateDealerHand();
+  }, [game.playerHand, game.dealerHand, updatePlayerHand, updateDealerHand]);
+
+  return (
+    <div>
+      <div className="actions-container">
+        <Actions game={game} setBalance={setBalance} updatePlayerHand={updatePlayerHand} updateDealerHand={updateDealerHand} setGameState={setGameState} />
+      </div>
+      <div className="hand-container">
+        <Hand hand={playerHand} total={game.playerHandTotal} name="Player Hand" />
+        <Hand hand={dealerHand} total={game.dealerHandTotal} name="Dealer Hand" />
+      </div>
+    </div>
+  );
+};
 
 export default BlackjackPlaying;

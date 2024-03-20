@@ -1,4 +1,5 @@
 // Blackjack Class for Logic Handling
+import { jwtDecode } from "jwt-decode";
 import { Shuffle, drawCard } from "./DeckOfCardsAPI";
 import CasinoApi from "./api";
 
@@ -99,19 +100,39 @@ class BlackjackClass {
         localStorage.setItem("balance", this.balance);
     }
 
-    endGame(){
+    async endGame(){
+        // get username
+        let token = localStorage.getItem("token");
+        let decoded = jwtDecode(token);
+
         let msg;
         if (this.gameState === "playerBust"){
             msg = `You busted with a total of ${this.playerHandTotal}! You lose your bet.`;
-        } else if (this.gameState === "dealerBust"){
-            msg = `Dealer busted with a total of ${this.dealerHandTotal}! You win your bet.`;
-        } else if (this.gameState === "draw"){
-            msg = "It's a draw! You lose your bet.";
-        } else if (this.gameState === "playerWin"){
-            msg = `You won with a total of ${this.playerHandTotal}! You win your bet.`;
-        } else if (this.gameState === "dealerWin"){
+        } 
+        else if (this.gameState === "dealerBust"){
+            msg = `Dealer busted with a total of ${this.dealerHandTotal}! You win your 2x bet.`;
+            let winnings = this.currentBet * 2;
+            await CasinoApi.giveWinnings(decoded.username, parseInt(winnings));
+            let newBalance = parseInt(this.balance) + parseInt(winnings);
+            localStorage.setItem("balance", newBalance);
+        } 
+        else if (this.gameState === "draw"){
+            msg = "It's a draw! You have received your bet back.";
+            await CasinoApi.giveWinnings(decoded.username, this.currentBet);
+            this.balance += this.currentBet;
+            localStorage.setItem("balance", this.balance);
+        } 
+        else if (this.gameState === "playerWin"){
+            msg = `You won with a total of ${this.playerHandTotal}! You win 2x your bet.`;
+            let winnings = this.currentBet * 2;
+            await CasinoApi.giveWinnings(decoded.username, parseInt(winnings));
+            let newBalance = parseInt(this.balance) + parseInt(winnings);
+            localStorage.setItem("balance", newBalance);
+        } 
+        else if (this.gameState === "dealerWin"){
             msg = `Dealer wins with a total of ${this.dealerHandTotal}! You lose your bet.`;
-        } else {
+        } 
+        else {
             msg = "Something went wrong. You lose your bet.";
         }
 
@@ -121,70 +142,62 @@ class BlackjackClass {
     async hit(){
         // add a card to player hand and check if bust
         // if bust, set gameState to playerBust
-        console.log("hitting...");
         let playerCard = await this.dealCard();
         this.playerHand.push(playerCard);
         this.playerHandTotal = this.calculateHandValue(this.playerHand);
-        this.checkBust();
+        if (this.playerHandTotal > 21) {
+            this.gameState = "playerBust";
+            this.endGame();
+        }
     }
 
-    async stand(){
+    async stand() {
         // flip dealers second card
         this.dealerHand[1].isFaceDown = false;
+    
         // calculate new hand value
         this.dealerHandTotal = this.calculateHandValue(this.dealerHand);
-        // check if dealer bust
-        this.checkBust();
-
-        // if hand value is less than 17, continue drawing cards until hand value is greater than 17 checking for bust inbetween
+    
+        // if hand value is less than 17, continue drawing cards 
         while (this.dealerHandTotal < 17) {
             let dealerCard = await this.dealCard();
             this.dealerHand.push(dealerCard);
             this.dealerHandTotal = this.calculateHandValue(this.dealerHand);
-            console.log("dealer hand total: ", this.dealerHandTotal);
-            console.log("dealer hand: ", this.dealerHand);
-            this.checkBust();
         }
+    
         // Once dealer hand is finalized, check the result
-        this.checkWin();
-        console.log(this.gameState)
+        this.determineGameResult();
     }
 
-    checkWin(){
-        // Check if anyone has busted
-        this.checkBust();
-
-        // Check if player total is greater than dealer total
-        if (this.playerHandTotal > this.dealerHandTotal) {
-            this.gameState = "playerWin";
-        } 
-        // Check if player total is less than dealer total
-        else if (this.dealerHandTotal > this.playerHandTotal) {
-            this.gameState = "dealerWin";
-        } 
-        // If totals are equal, it's a draw
-        else {
-            this.gameState = "draw";
-        }
-        
-        // Move on to endGame
-        this.endGame();
-    }
-
-    checkBust(){
+    determineGameResult() {
         // Check if player hand is over 21
         if (this.playerHandTotal > 21) {
             this.gameState = "playerBust";
         }
-
         // Check if dealer hand is over 21
-        if (this.dealerHandTotal > 21) {
+        else if (this.dealerHandTotal > 21) {
             this.gameState = "dealerBust";
         }
+        // Check if player total is greater than dealer total
+        else if (this.playerHandTotal > this.dealerHandTotal) {
+            this.gameState = "playerWin";
+        }
+        // Check if player total is less than dealer total
+        else if (this.dealerHandTotal > this.playerHandTotal) {
+            this.gameState = "dealerWin";
+        }
+        // If totals are equal, it's a draw
+        else {
+            this.gameState = "draw";
+        }
+    
+        // Move on to endGame
+        this.endGame();
     }
 
     restartGame(){
         // Reset game state and clear hands
+        this.deckID = null;
         this.playerHand = [];
         this.dealerHand = [];
         this.playerHandTotal = 0;
@@ -195,9 +208,9 @@ class BlackjackClass {
 
     async doubleBet(username){
         await CasinoApi.placeBet(username, this.currentBet);
-        this.currentBet *= 2;
         this.balance -= this.currentBet;
         localStorage.setItem("balance", this.balance);
+        this.currentBet *= 2;
     }
 
     async tripleBet(username){
@@ -205,9 +218,9 @@ class BlackjackClass {
         let newBet = oldBet * 3;
         let bet = newBet - oldBet;
         await CasinoApi.placeBet(username, bet);
-        this.currentBet = newBet;
-        this.balance -= this.currentBet;
+        this.balance -= bet;
         localStorage.setItem("balance", this.balance);
+        this.currentBet = newBet;
     }   
 }
 
